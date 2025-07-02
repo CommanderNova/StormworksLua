@@ -177,8 +177,13 @@ function onDraw()
 	local w = screen.getWidth()
 	local h = screen.getHeight()
 	screen.setColor(0, 255, 0)
+	
+	local absGpsX = math.abs(gpsX)
+	local signTextGpsX = sign(gpsX) > 0 and "" or "-"
+	local absGpsY = math.abs(gpsY)
+	local signTextGpsY = sign(gpsY) > 0 and "" or "-"
 
 	local compassText = getCompassText()
-	local text = string.format("X: %.f\nY: %.f\n%s", gpsX, gpsY, compassText)
+	local text = string.format("X:%s%.f\nY:%s%.f\n%s", signTextGpsX, absGpsX, signTextGpsY, absGpsY, compassText)
 	screen.drawTextBox(2, 2, w, h, text)
 end
