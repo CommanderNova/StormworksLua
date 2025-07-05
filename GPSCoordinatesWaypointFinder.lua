@@ -179,9 +179,9 @@ function onDraw()
 	screen.setColor(0, 255, 0)
 	
 	local absGpsX = math.abs(gpsX)
-	local signTextGpsX = sign(gpsX) > 0 and "" or "-"
+	local signTextGpsX = sign(gpsX) > 0 and " " or "-"
 	local absGpsY = math.abs(gpsY)
-	local signTextGpsY = sign(gpsY) > 0 and "" or "-"
+	local signTextGpsY = sign(gpsY) > 0 and " " or "-"
 
 	local compassText = getCompassText()
 	local text = string.format("X:%s%.f\nY:%s%.f\n%s", signTextGpsX, absGpsX, signTextGpsY, absGpsY, compassText)
