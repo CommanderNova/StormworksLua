@@ -11,6 +11,8 @@ local bearingIcon = "-"
 local leftIcon = "<"
 local rightIcon = ">"
 
+local distLabel = "WP Dist"
+
 local function sign(number)
 	return number > 0 and 1 or (number == 0 and 0 or -1)
 end
@@ -47,6 +49,10 @@ end
 
 function vector2D.magnitude(vec)
 	return math.sqrt(vec[1] ^ 2 + vec[2] ^ 2)
+end
+
+function vector2D.distance(vec1, vec2)
+	return math.sqrt((vec1[1] - vec2[1]) ^ 2 + (vec1[2] - vec2[2]) ^ 2)
 end
 
 function vector2D.normalize(vec)
@@ -89,6 +95,20 @@ function vector2D.rotationToDirection(rot)
 	local x = math.sin(adjRot * tau)
 	local y = math.cos(adjRot * tau)
 	return vector2D.normalize(vector2D.new(x, y))
+end
+
+local function appendToEnd(maxStringNum, toString, fromString)
+	local fromStringStart = maxStringNum - #fromString
+    local newString = string.sub(toString, 1, fromStringStart)
+
+	if #toString < maxStringNum then
+		local numSpacesToFill = maxStringNum - #fromString - #toString
+		for i = 1, numSpacesToFill, 1 do
+			newString = newString .. " "
+		end
+	end
+	
+	return newString .. fromString
 end
 
 local function getCompassText()
@@ -169,8 +189,9 @@ function onTick()
 	waypointY = input.getNumber(5)
 	waypoint = vector2D.new(waypointX, waypointY)
 
-	maxScreenWidth = math.ceil(property.getNumber("MaxScreenWidth"))
-	maxBearing = property.getNumber("MaxBearing")
+	maxScreenWidth = math.ceil(property.getNumber("MaxScreenWidth")) or 19
+	maxBearing = property.getNumber("MaxBearing") or 30
+	showDistance = property.getBool("ShowWaypointDistance") or false
 end
 
 function onDraw()
@@ -180,10 +201,19 @@ function onDraw()
 	
 	local absGpsX = math.abs(gpsX)
 	local signTextGpsX = sign(gpsX) > 0 and " " or "-"
+	local textGpsX = string.format("X:%s%.f", signTextGpsX, absGpsX)
+	
 	local absGpsY = math.abs(gpsY)
 	local signTextGpsY = sign(gpsY) > 0 and " " or "-"
+	local textGpsY = string.format("Y:%s%.f", signTextGpsY, absGpsY)
+	
+	if showDistance then
+		textGpsX = appendToEnd(maxScreenWidth, textGpsX, distLabel)
+		local distToWaypointText = string.format("%.f", vector2D.distance(gps, waypoint))
+		textGpsY = appendToEnd(maxScreenWidth, textGpsY, distToWaypointText)
+	end
 
 	local compassText = getCompassText()
-	local text = string.format("X:%s%.f\nY:%s%.f\n%s", signTextGpsX, absGpsX, signTextGpsY, absGpsY, compassText)
+	local text = string.format("%s\n%s\n%s", textGpsX, textGpsY, compassText)
 	screen.drawTextBox(2, 2, w, h, text)
 end
